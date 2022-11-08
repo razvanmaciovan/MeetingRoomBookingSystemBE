@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/locusdbserver/databases/Locus_db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:PostgreDB",
+      "dynamicId": null
+    },
+    "appInsights1": {
+      "ignored": "true",
+      "type": "appInsights"
+    }
+  }
+}

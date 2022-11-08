@@ -1,0 +1,56 @@
+﻿using Locus.Data;
+using Locus.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace Locus.Controllers
+{
+    [Route("/")]
+    [ApiController]
+    public class LayoutController : ControllerBase
+    {
+        private readonly EntitiesDbContext _context;
+        public LayoutController(EntitiesDbContext context) => _context = context;
+
+        [HttpGet("Layouts")]
+        public async Task<IEnumerable<Layout>> GetLayouts() => await _context.Layouts.ToListAsync();
+
+        [HttpGet("Layouts/id")]
+        [ProducesResponseType(typeof(Layout), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetLayoutById(int id)
+        {
+            var layout = await _context.Layouts.FindAsync(id);
+            return layout == null ? NotFound() : Ok(layout);
+        }
+        /// <summary>
+        /// Creates a new layout
+        /// </summary>
+        /// <param name="layout">Object of type layout</param>
+        /// <returns>The layout created</returns>
+        [HttpPost("Layouts")]
+        [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
+        public async Task<IActionResult> Create(Layout layout)
+        {
+            await _context.Layouts.AddAsync(layout);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetLayoutById), new { id = layout.Id }, layout);
+        }
+        [HttpPost("Layouts/id/Room/id")]
+        public async Task<IActionResult> AddRoomById(int layoutId,int roomId)
+        {
+            var room = await _context.Rooms.FindAsync(roomId);
+            await _context.SaveChangesAsync();
+            if (room == null) return NotFound();
+            var layout = await _context.Layouts.FindAsync(layoutId);
+            await _context.SaveChangesAsync();
+            if (layout == null) return NotFound();
+            layout.Rooms.Append(room);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(AddRoomById), new { roomId = roomId }, layout);
+
+        }
+    }
+}
