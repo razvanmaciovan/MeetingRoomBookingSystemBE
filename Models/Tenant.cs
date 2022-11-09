@@ -13,9 +13,9 @@ namespace Locus.Models
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
-        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<Room> Rooms { get; set; }
-        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<User> Users { get; set; }
         public Tenant()
         {

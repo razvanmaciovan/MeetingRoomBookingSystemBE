@@ -39,5 +39,24 @@ namespace Locus.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
+        /// <summary>
+        /// Assigns a tenant to a user based on ids
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="tenantId"></param>
+        /// <returns>The updated User</returns>
+        [HttpPut("Users/{userId}/Assign/{tenantId}")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        public async Task<IActionResult> AddUserToTenant(int userId, int tenantId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var tenant = await _context.Tenants.FindAsync(tenantId);
+            if(user == null || tenant == null) return NotFound();
+            user.TenantId = tenantId;
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(AddUserToTenant), new { id = user.Id }, user);
+        }
+
     }
 }

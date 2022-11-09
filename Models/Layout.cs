@@ -11,7 +11,7 @@ namespace Locus.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [SwaggerSchema(ReadOnly = true)]
         public int Id { get; set; }
-        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<Room> Rooms { get; set; }
         public int Floor { get; set; }
 

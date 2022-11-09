@@ -15,9 +15,10 @@ namespace Locus.Models
         public string Email { get; set; }
         [Required]
         [MaxLength(16)]
+        [SwaggerSchema(WriteOnly = true)]
         public string Password { get; set; }
         public bool IsAdmin { get; set; }
-        [JsonIgnore]
+        [SwaggerSchema(ReadOnly = true)]
         public int? TenantId { get; set; }
         [JsonIgnore]
         public Tenant? Tenant { get; set; }
