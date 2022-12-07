@@ -55,7 +55,7 @@ namespace Locus.Controllers
             user.TenantId = tenantId;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(AddUserToTenant), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
     }

@@ -38,19 +38,24 @@ namespace Locus.Controllers
 
             return CreatedAtAction(nameof(GetLayoutById), new { id = layout.Id }, layout);
         }
-        [HttpPost("Layouts/id/Room/id")]
-        public async Task<IActionResult> AddRoomById(int layoutId,int roomId)
-        {
-            var room = await _context.Rooms.FindAsync(roomId);
-            await _context.SaveChangesAsync();
-            if (room == null) return NotFound();
-            var layout = await _context.Layouts.FindAsync(layoutId);
-            await _context.SaveChangesAsync();
-            if (layout == null) return NotFound();
-            layout.Rooms.Append(room);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(AddRoomById), new { roomId = roomId }, layout);
 
+        /// <summary>
+        /// Assigns a tenant to a layout based on ids
+        /// </summary>
+        /// <param name="layoutId"></param>
+        /// <param name="tenantId"></param>
+        /// <returns>The updated Layout</returns>
+        [HttpPut("Layouts/{layoutId}/Assign/{tenantId}")]
+        [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
+        public async Task<IActionResult> AddLayoutToTenant(int layoutId, int tenantId)
+        {
+            var layout = await _context.Layouts.FindAsync(layoutId);
+            var tenant = await _context.Tenants.FindAsync(tenantId);
+            if (layout == null || tenant == null) return NotFound();
+            layout.TenantId = tenantId;
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetLayoutById), new { id = layout.Id }, layout);
         }
     }
 }

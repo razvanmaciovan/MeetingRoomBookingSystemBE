@@ -18,7 +18,6 @@ namespace Locus.Models
         [SwaggerSchema(WriteOnly = true)]
         public string Password { get; set; }
         public bool IsAdmin { get; set; }
-        [SwaggerSchema(ReadOnly = true)]
         public int? TenantId { get; set; }
         [JsonIgnore]
         public Tenant? Tenant { get; set; }

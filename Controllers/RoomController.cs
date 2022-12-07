@@ -38,5 +38,24 @@ namespace Locus.Controllers
 
             return CreatedAtAction(nameof(GetRoomById), new { id = room.Id }, room);
         }
+
+        /// <summary>
+        /// Assigns a layout to a room based on ids
+        /// </summary>
+        /// <param name="roomId"></param>
+        /// <param name="layoutId"></param>
+        /// <returns>The updated Room</returns>
+        [HttpPut("Rooms/{roomId}/Assign/{layoutId}")]
+        [ProducesResponseType(typeof(Room), StatusCodes.Status201Created)]
+        public async Task<IActionResult> AddRoomToLayout(int roomId, int layoutId)
+        {
+            var room = await _context.Rooms.FindAsync(roomId);
+            var layout = await _context.Layouts.FindAsync(layoutId);
+            if (room == null || layout == null) return NotFound();
+            room.LayoutId = layoutId;
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetRoomById), new { id = room.Id }, room);
+        }
     }
 }

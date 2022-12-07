@@ -1,26 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using Swashbuckle.AspNetCore.Annotations;
 using System.Text.Json.Serialization;
 
 namespace Locus.Models
 {
-    public class Room
+    public class Image
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [SwaggerSchema(ReadOnly = true)]
         public int Id { get; set; }
-        public string Name { get; set; }
+        [Required]
+        public string ImageData { get; set; }
         public int? LayoutId { get; set; }
         [JsonIgnore]
         public Layout? Layout { get; set; }
-        [SwaggerSchema(ReadOnly = true)]
-        public IEnumerable<Reservation> Reservations { get; set; }
-        public Room()
-        {
-            Reservations = new List<Reservation>();
-        }
     }
 }

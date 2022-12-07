@@ -1,4 +1,5 @@
-﻿using Swashbuckle.AspNetCore.Annotations;
+﻿using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -14,12 +15,14 @@ namespace Locus.Models
         [Required]
         public string Name { get; set; }
         [SwaggerSchema(ReadOnly = true)]
-        public IEnumerable<Room> Rooms { get; set; }
+        public IEnumerable<Layout> Layouts { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public int FloorCount { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public IEnumerable<User> Users { get; set; }
         public Tenant()
         {
-            Rooms = new List<Room>();
+            Layouts = new List<Layout>();
             Users = new List<User>();
         }
     }

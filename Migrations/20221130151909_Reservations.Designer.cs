@@ -4,6 +4,7 @@ using Locus.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Locus.Migrations
 {
     [DbContext(typeof(EntitiesDbContext))]
-    partial class EntitiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221130151909_Reservations")]
+    partial class Reservations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,16 +32,16 @@ namespace Locus.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("ImageData")
+                    b.Property<byte[]>("ImageData")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<int?>("LayoutId")
+                    b.Property<int?>("TenantId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LayoutId");
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Images");
                 });
@@ -55,12 +57,7 @@ namespace Locus.Migrations
                     b.Property<int>("Floor")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Layouts");
                 });
@@ -80,7 +77,10 @@ namespace Locus.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RoomId")
+                    b.Property<int>("Floor")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomId")
                         .HasColumnType("int");
 
                     b.Property<string>("StartInterval")
@@ -102,6 +102,9 @@ namespace Locus.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("Floor")
+                        .HasColumnType("int");
+
                     b.Property<int?>("LayoutId")
                         .HasColumnType("int");
 
@@ -109,9 +112,14 @@ namespace Locus.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TenantId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LayoutId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Rooms");
                 });
@@ -168,27 +176,18 @@ namespace Locus.Migrations
 
             modelBuilder.Entity("Locus.Models.Image", b =>
                 {
-                    b.HasOne("Locus.Models.Layout", "Layout")
+                    b.HasOne("Locus.Models.Tenant", null)
                         .WithMany("Images")
-                        .HasForeignKey("LayoutId");
-
-                    b.Navigation("Layout");
-                });
-
-            modelBuilder.Entity("Locus.Models.Layout", b =>
-                {
-                    b.HasOne("Locus.Models.Tenant", "Tenant")
-                        .WithMany("Layouts")
                         .HasForeignKey("TenantId");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Locus.Models.Reservation", b =>
                 {
                     b.HasOne("Locus.Models.Room", "Room")
                         .WithMany("Reservations")
-                        .HasForeignKey("RoomId");
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Room");
                 });
@@ -199,7 +198,13 @@ namespace Locus.Migrations
                         .WithMany("Rooms")
                         .HasForeignKey("LayoutId");
 
+                    b.HasOne("Locus.Models.Tenant", "Tenant")
+                        .WithMany("Rooms")
+                        .HasForeignKey("TenantId");
+
                     b.Navigation("Layout");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Locus.Models.User", b =>
@@ -213,8 +218,6 @@ namespace Locus.Migrations
 
             modelBuilder.Entity("Locus.Models.Layout", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("Rooms");
                 });
 
@@ -225,7 +228,9 @@ namespace Locus.Migrations
 
             modelBuilder.Entity("Locus.Models.Tenant", b =>
                 {
-                    b.Navigation("Layouts");
+                    b.Navigation("Images");
+
+                    b.Navigation("Rooms");
 
                     b.Navigation("Users");
                 });
