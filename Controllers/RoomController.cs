@@ -57,5 +57,16 @@ namespace Locus.Controllers
 
             return CreatedAtAction(nameof(GetRoomById), new { id = room.Id }, room);
         }
+
+        /// <summary>
+        /// Returns all reservations that belong to a specific Room
+        /// </summary>
+        /// <param name="roomId"></param>
+        /// <returns></returns>
+
+        [HttpGet("Rooms/{roomId}/Reservations")]
+        [ProducesResponseType(typeof(Reservation), StatusCodes.Status200OK)]
+        public async Task<IEnumerable<Reservation>> GetReservationsFromRoomId(int roomId) =>
+            await _context.Reservations.Where(reservation => reservation.RoomId == roomId).ToListAsync();
     }
 }

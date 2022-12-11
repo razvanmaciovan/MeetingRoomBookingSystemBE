@@ -38,5 +38,16 @@ namespace Locus.Controllers
 
             return CreatedAtAction(nameof(GetTenantById), new { id = tenant.Id }, tenant);
         }
+
+        /// <summary>
+        /// Returns all users that belong to a specific Tenant
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+
+        [HttpGet("Tenants/{tenantId}/Users")]
+        [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        public async Task<IEnumerable<User>> GetUsersFromTenantId(int tenantId) =>
+            await _context.Users.Where(user => user.TenantId == tenantId).ToListAsync();
     }
 }

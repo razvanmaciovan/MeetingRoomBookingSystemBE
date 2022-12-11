@@ -57,5 +57,26 @@ namespace Locus.Controllers
 
             return CreatedAtAction(nameof(GetLayoutById), new { id = layout.Id }, layout);
         }
+        /// <summary>
+        /// Returns all rooms that belong to a specific Layout
+        /// </summary>
+        /// <param name="layoutId"></param>
+        /// <returns></returns>
+
+        [HttpGet("Layouts/{layoutId}/Rooms")]
+        [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
+        public async Task<IEnumerable<Room>> GetRoomsFromLayoutId(int layoutId) => 
+            await _context.Rooms.Where(room => room.LayoutId == layoutId).ToListAsync();
+
+        /// <summary>
+        /// Returns all images that belong to a specific Layout
+        /// </summary>
+        /// <param name="layoutId"></param>
+        /// <returns></returns>
+
+        [HttpGet("Layouts/{layoutId}/images")]
+        [ProducesResponseType(typeof(Image), StatusCodes.Status200OK)]
+        public async Task<IEnumerable<Image>> GetImagesFromLayoutId(int layoutId) =>
+            await _context.Images.Where(image => image.LayoutId == layoutId).ToListAsync();
     }
 }
