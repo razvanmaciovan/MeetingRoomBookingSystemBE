@@ -49,5 +49,16 @@ namespace Locus.Controllers
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         public async Task<IEnumerable<User>> GetUsersFromTenantId(int tenantId) =>
             await _context.Users.Where(user => user.TenantId == tenantId).ToListAsync();
+
+        /// <summary>
+        /// Returns all layouts that belong to a specific Tenant
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+
+        [HttpGet("Tenants/{tenantId}/Layouts")]
+        [ProducesResponseType(typeof(Layout), StatusCodes.Status200OK)]
+        public async Task<IEnumerable<Layout>> GetLayoutsFromTenantId(int tenantId) =>
+            await _context.Layouts.Where(layout => layout.TenantId == tenantId).ToListAsync();
     }
 }
