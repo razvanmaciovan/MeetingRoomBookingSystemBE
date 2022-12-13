@@ -70,30 +70,5 @@ namespace Locus.Controllers
 
             return true;
         }
-
-        static void Main(string[] args)
-        {
-            string password = "parola123";
-            string typedPassword_ok = "parola123";
-            string typedPassword_nok = "123paroal";
-
-            var hash = Hash(password);
-            var result = Verify(typedPassword_ok, hash);
-
-            if (result)
-            {
-                Console.WriteLine("CORRECT PASSWORD!");
-            }
-            else
-            {
-                Console.WriteLine("INCORRECT PASSWORD!");
-            }
-
-            Console.Write("Press  to exit... ");
-            while (Console.ReadKey().Key != ConsoleKey.Enter)
-            {
-                //run loop until Enter is press
-            }
-        }
     }
 }
