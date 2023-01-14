@@ -1,5 +1,6 @@
 ﻿using Locus.Data;
 using Locus.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Locus.Controllers
         /// <returns>The tenant created</returns>
         [HttpPost("Tenants")]
         [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
+        [Authorize("admin:true")]
         public async Task<IActionResult> Create(Tenant tenant )
         {
             await _context.Tenants.AddAsync(tenant);

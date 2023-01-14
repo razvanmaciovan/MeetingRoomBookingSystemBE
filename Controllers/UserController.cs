@@ -1,5 +1,6 @@
 ﻿using Locus.Data;
 using Locus.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Locus.Controllers
         /// <returns>The user created</returns>
         [HttpPost("Users")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        [Authorize("admin:true")]
         public async Task<IActionResult> Create(User user)
         {
             await _context.Users.AddAsync(user);
@@ -47,6 +49,7 @@ namespace Locus.Controllers
         /// <returns>The updated User</returns>
         [HttpPut("Users/{userId}/Assign/{tenantId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
+        [Authorize("admin:true")]
         public async Task<IActionResult> AddUserToTenant(int userId, int tenantId)
         {
             var user = await _context.Users.FindAsync(userId);

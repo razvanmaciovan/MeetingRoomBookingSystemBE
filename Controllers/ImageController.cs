@@ -1,5 +1,6 @@
 ﻿using Locus.Data;
 using Locus.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Locus.Controllers
         /// <returns>The Image created</returns>
         [HttpPost("Images")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status201Created)]
+        [Authorize]
         public async Task<IActionResult> Create(Image Image)
         {
             await _context.Images.AddAsync(Image);
@@ -47,6 +49,7 @@ namespace Locus.Controllers
         /// <returns>The updated Image</returns>
         [HttpPut("Images/{imageId}/Assign/{layoutId}")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status201Created)]
+        [Authorize]
         public async Task<IActionResult> AddImageToLayout(int imageId, int layoutId)
         {
             var image = await _context.Images.FindAsync(imageId);

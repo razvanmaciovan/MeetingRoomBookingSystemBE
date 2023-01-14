@@ -1,5 +1,6 @@
 ﻿using Locus.Data;
 using Locus.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Locus.Controllers
         /// <returns>The Reservation created</returns>
         [HttpPost("Reservations")]
         [ProducesResponseType(typeof(Reservation), StatusCodes.Status201Created)]
+        [Authorize]
         public async Task<IActionResult> Create(Reservation Reservation)
         {
             await _context.Reservations.AddAsync(Reservation);
@@ -47,6 +49,7 @@ namespace Locus.Controllers
         /// <returns>The updated Rservation</returns>
         [HttpPut("Reservations/{reservationId}/Assign/{roomId}")]
         [ProducesResponseType(typeof(Reservation), StatusCodes.Status201Created)]
+        [Authorize]
         public async Task<IActionResult> AddReservationToRoom(int reservationId, int roomId)
         {
             var reservation = await _context.Reservations.FindAsync(reservationId);

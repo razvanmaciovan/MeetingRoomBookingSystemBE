@@ -1,5 +1,6 @@
 ﻿using Locus.Data;
 using Locus.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,7 @@ namespace Locus.Controllers
         /// <returns>The layout created</returns>
         [HttpPost("Layouts")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
+        [Authorize("admin:true")]
         public async Task<IActionResult> Create(Layout layout)
         {
             await _context.Layouts.AddAsync(layout);
@@ -47,6 +49,7 @@ namespace Locus.Controllers
         /// <returns>The updated Layout</returns>
         [HttpPut("Layouts/{layoutId}/Assign/{tenantId}")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
+        [Authorize("admin:true")]
         public async Task<IActionResult> AddLayoutToTenant(int layoutId, int tenantId)
         {
             var layout = await _context.Layouts.FindAsync(layoutId);
