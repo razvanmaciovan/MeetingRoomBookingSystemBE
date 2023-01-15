@@ -25,6 +25,18 @@ namespace Locus.Controllers
         public async Task<IActionResult> GetRoomById(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null || room == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != room.TenantId)
+            {
+                return Unauthorized();
+            }
+
             return room == null ? NotFound() : Ok(room);
         }
         /// <summary>
@@ -56,7 +68,18 @@ namespace Locus.Controllers
         {
             var room = await _context.Rooms.FindAsync(roomId);
             var layout = await _context.Layouts.FindAsync(layoutId);
-            if (room == null || layout == null) return NotFound();
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null || layout == null || room == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != layout.TenantId || user.TenantId != room.TenantId)
+            {
+                return Unauthorized();
+            }
+
             room.LayoutId = layoutId;
             await _context.SaveChangesAsync();
 

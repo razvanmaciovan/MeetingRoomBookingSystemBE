@@ -24,8 +24,20 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IActionResult> GetImageById(int id)
         {
-            var Image = await _context.Images.FindAsync(id);
-            return Image == null ? NotFound() : Ok(Image);
+            var image = await _context.Images.FindAsync(id);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null || image == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != image.TenantId)
+            {
+                return Unauthorized();
+            }
+
+            return image == null ? NotFound() : Ok(image);
         }
         /// <summary>
         /// Creates a new Image
@@ -56,7 +68,16 @@ namespace Locus.Controllers
         {
             var image = await _context.Images.FindAsync(imageId);
             var layout = await _context.Layouts.FindAsync(layoutId);
-            if (image == null || layout == null) return NotFound();
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (image == null || layout == null || user == null) return NotFound();
+
+            if (user.TenantId != layout.TenantId || user.TenantId != image.TenantId) 
+            { 
+                return Unauthorized(); 
+            }
+
             image.LayoutId = layoutId;
             await _context.SaveChangesAsync();
 

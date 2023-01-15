@@ -25,6 +25,17 @@ namespace Locus.Controllers
         public async Task<IActionResult> GetTenantById(int id)
         {
             var tenant = await _context.Tenants.FindAsync(id);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null || tenant == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != tenant.Id)
+            {
+                return Unauthorized();
+            }
             return tenant == null ? NotFound() : Ok(tenant);
         }
         /// <summary>

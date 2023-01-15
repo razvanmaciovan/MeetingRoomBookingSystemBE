@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 
@@ -31,7 +32,19 @@ namespace Locus.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            return user == null ? NotFound() : Ok(user);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var userToCheck = await _context.Users.FindAsync(userId);
+
+            if (user == null || userToCheck == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != userToCheck.TenantId)
+            {
+                return Unauthorized();
+            }
+
+            return user == null ? NotFound() : Ok(userToCheck);
         }
         /// <summary>
         /// Creates a new user
@@ -63,11 +76,22 @@ namespace Locus.Controllers
         {
             var user = await _context.Users.FindAsync(userId);
             var tenant = await _context.Tenants.FindAsync(tenantId);
-            if(user == null || tenant == null) return NotFound();
-            user.TenantId = tenantId;
+            int userToCheckId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var userToCheck = await _context.Users.FindAsync(userId);
+
+            if (user == null || userToCheck == null || tenant == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != userToCheck.TenantId || user.TenantId != tenant.Id)
+            {
+                return Unauthorized();
+            }
+
+            userToCheck.TenantId = tenantId;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+            return CreatedAtAction(nameof(GetUserById), new { id = userToCheck.Id }, user);
         }
 
         [HttpPost("login")]
