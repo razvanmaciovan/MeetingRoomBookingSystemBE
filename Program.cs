@@ -1,4 +1,5 @@
 using Locus.Data;
+using Locus.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +7,17 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Security.Claims;
+using System.Text;
 using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var issuers = new List<string>()
+    {
+        "https://localhost:7122",
+        "https://meetingroombookingapi.azurewebsites.net",
+        "https://localhost:3000"
+    };
 
 // Add services to the container.
 
@@ -22,27 +31,26 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Locus",
         Version = "v1"
     });
-
-    var securitySchema = new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
-        Description = "Using the Authorization header with the Bearer scheme.",
         Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        Reference = new OpenApiReference
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
         }
-    };
-
-    c.AddSecurityDefinition("Bearer", securitySchema);
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-          {
-              { securitySchema, new[] { "Bearer" } }
-          });
+    });
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
@@ -61,26 +69,27 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.Authority = domain;
-        options.Audience = $@"https://locus/api";
-        // If the access token does not have a `sub` claim, `User.Identity.Name` will be `null`. Map it to a different claim by setting the NameClaimType below.
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            NameClaimType = ClaimTypes.NameIdentifier
+            // All of this -> token is valid if: 
+            ValidateIssuer = true,  //isues is the actual sv that created token
+            ValidateAudience = true,  //receiver is valid
+            ValidateLifetime = true,  //has not expired
+            ValidateIssuerSigningKey = true,  //sign key is trusted by the sv
+
+            ValidIssuers = issuers,
+            ValidAudiences = issuers,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"))
         };
     });
 builder.Services
       .AddAuthorization(options =>
       {
           options.AddPolicy(
-            "admin:true",
-            policy => policy.Requirements.Add(
-              new HasScopeRequirement("admin:true", domain)
-            )
+            "admin:True",
+            policy => policy.RequireClaim("admin", "True")
           );
       });
-
-builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

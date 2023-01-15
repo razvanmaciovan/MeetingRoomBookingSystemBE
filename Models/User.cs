@@ -14,7 +14,6 @@ namespace Locus.Models
         [Required]
         public string Email { get; set; }
         [Required]
-        [MaxLength(16)]
         [SwaggerSchema(WriteOnly = true)]
         public string Password { get; set; }
         public bool IsAdmin { get; set; }

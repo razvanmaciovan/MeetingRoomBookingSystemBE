@@ -16,5 +16,9 @@ namespace Locus.Models
         public int? LayoutId { get; set; }
         [JsonIgnore]
         public Layout? Layout { get; set; }
+        [JsonIgnore]
+        public int? TenantId { get; set; }
+        [JsonIgnore]
+        public Tenant? Tenant { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using Locus.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Locus.Migrations
 {
     [DbContext(typeof(EntitiesDbContext))]
-    partial class EntitiesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230114214339_Jwt")]
+    partial class Jwt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,14 +39,9 @@ namespace Locus.Migrations
                     b.Property<int?>("LayoutId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LayoutId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Images");
                 });
@@ -114,14 +111,9 @@ namespace Locus.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("LayoutId");
-
-                    b.HasIndex("TenantId");
 
                     b.ToTable("Rooms");
                 });
@@ -181,13 +173,7 @@ namespace Locus.Migrations
                         .WithMany("Images")
                         .HasForeignKey("LayoutId");
 
-                    b.HasOne("Locus.Models.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
                     b.Navigation("Layout");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Locus.Models.Layout", b =>
@@ -214,13 +200,7 @@ namespace Locus.Migrations
                         .WithMany("Rooms")
                         .HasForeignKey("LayoutId");
 
-                    b.HasOne("Locus.Models.Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId");
-
                     b.Navigation("Layout");
-
-                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("Locus.Models.User", b =>

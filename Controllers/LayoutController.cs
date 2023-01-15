@@ -15,14 +15,26 @@ namespace Locus.Controllers
         public LayoutController(EntitiesDbContext context) => _context = context;
 
         [HttpGet("Layouts")]
+        [Authorize]
         public async Task<IEnumerable<Layout>> GetLayouts() => await _context.Layouts.ToListAsync();
 
         [HttpGet("Layouts/id")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetLayoutById(int id)
         {
             var layout = await _context.Layouts.FindAsync(id);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+            if(user == null || layout == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != layout.TenantId)
+            { 
+                return Unauthorized(); 
+            }
             return layout == null ? NotFound() : Ok(layout);
         }
         /// <summary>
@@ -32,7 +44,7 @@ namespace Locus.Controllers
         /// <returns>The layout created</returns>
         [HttpPost("Layouts")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
-        [Authorize("admin:true")]
+        [Authorize("admin:True")]
         public async Task<IActionResult> Create(Layout layout)
         {
             await _context.Layouts.AddAsync(layout);
@@ -49,7 +61,7 @@ namespace Locus.Controllers
         /// <returns>The updated Layout</returns>
         [HttpPut("Layouts/{layoutId}/Assign/{tenantId}")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status201Created)]
-        [Authorize("admin:true")]
+        [Authorize("admin:True")]
         public async Task<IActionResult> AddLayoutToTenant(int layoutId, int tenantId)
         {
             var layout = await _context.Layouts.FindAsync(layoutId);
@@ -68,6 +80,7 @@ namespace Locus.Controllers
 
         [HttpGet("Layouts/{layoutId}/Rooms")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IEnumerable<Room>> GetRoomsFromLayoutId(int layoutId) => 
             await _context.Rooms.Where(room => room.LayoutId == layoutId).ToListAsync();
 
@@ -79,6 +92,7 @@ namespace Locus.Controllers
 
         [HttpGet("Layouts/{layoutId}/images")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IEnumerable<Image>> GetImagesFromLayoutId(int layoutId) =>
             await _context.Images.Where(image => image.LayoutId == layoutId).ToListAsync();
     }

@@ -15,11 +15,13 @@ namespace Locus.Controllers
         public RoomController(EntitiesDbContext context) => _context = context;
 
         [HttpGet("Rooms")]
+        [Authorize]
         public async Task<IEnumerable<Room>> GetRooms() => await _context.Rooms.ToListAsync();
 
         [HttpGet("Rooms/id")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetRoomById(int id)
         {
             var room = await _context.Rooms.FindAsync(id);
@@ -32,7 +34,7 @@ namespace Locus.Controllers
         /// <returns>The room created</returns>
         [HttpPost("Rooms")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status201Created)]
-        [Authorize("admin:true")]
+        [Authorize("admin:True")]
         public async Task<IActionResult> Create(Room room)
         {
             await _context.Rooms.AddAsync(room);
@@ -49,7 +51,7 @@ namespace Locus.Controllers
         /// <returns>The updated Room</returns>
         [HttpPut("Rooms/{roomId}/Assign/{layoutId}")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status201Created)]
-        [Authorize("admin:true")]
+        [Authorize("admin:True")]
         public async Task<IActionResult> AddRoomToLayout(int roomId, int layoutId)
         {
             var room = await _context.Rooms.FindAsync(roomId);
@@ -69,6 +71,7 @@ namespace Locus.Controllers
 
         [HttpGet("Rooms/{roomId}/Reservations")]
         [ProducesResponseType(typeof(Reservation), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IEnumerable<Reservation>> GetReservationsFromRoomId(int roomId) =>
             await _context.Reservations.Where(reservation => reservation.RoomId == roomId).ToListAsync();
     }

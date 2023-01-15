@@ -15,11 +15,13 @@ namespace Locus.Controllers
         public ReservationController(EntitiesDbContext context) => _context = context;
 
         [HttpGet("Reservations")]
+        [Authorize]
         public async Task<IEnumerable<Reservation>> GetReservations() => await _context.Reservations.ToListAsync();
 
         [HttpGet("Reservations/id")]
         [ProducesResponseType(typeof(Reservation), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetReservationById(int id)
         {
             var Reservation = await _context.Reservations.FindAsync(id);

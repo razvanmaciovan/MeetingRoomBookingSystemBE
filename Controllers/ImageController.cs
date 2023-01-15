@@ -15,11 +15,13 @@ namespace Locus.Controllers
         public ImageController(EntitiesDbContext context) => _context = context;
 
         [HttpGet("Images")]
+        [Authorize]
         public async Task<IEnumerable<Image>> GetImages() => await _context.Images.ToListAsync();
 
         [HttpGet("Images/id")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetImageById(int id)
         {
             var Image = await _context.Images.FindAsync(id);

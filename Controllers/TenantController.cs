@@ -15,11 +15,13 @@ namespace Locus.Controllers
         public TenantController(EntitiesDbContext context) => _context = context;
 
         [HttpGet("Tenants")]
+        [Authorize]
         public async Task<IEnumerable<Tenant>> GetTenants() => await _context.Tenants.ToListAsync();
 
         [HttpGet("Tenants/id")]
         [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetTenantById(int id)
         {
             var tenant = await _context.Tenants.FindAsync(id);
@@ -32,7 +34,7 @@ namespace Locus.Controllers
         /// <returns>The tenant created</returns>
         [HttpPost("Tenants")]
         [ProducesResponseType(typeof(Tenant), StatusCodes.Status201Created)]
-        [Authorize("admin:true")]
+        [Authorize("admin:True")]
         public async Task<IActionResult> Create(Tenant tenant )
         {
             await _context.Tenants.AddAsync(tenant);
@@ -49,6 +51,7 @@ namespace Locus.Controllers
 
         [HttpGet("Tenants/{tenantId}/Users")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IEnumerable<User>> GetUsersFromTenantId(int tenantId) =>
             await _context.Users.Where(user => user.TenantId == tenantId).ToListAsync();
 
@@ -60,6 +63,7 @@ namespace Locus.Controllers
 
         [HttpGet("Tenants/{tenantId}/Layouts")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status200OK)]
+        [Authorize]
         public async Task<IEnumerable<Layout>> GetLayoutsFromTenantId(int tenantId) =>
             await _context.Layouts.Where(layout => layout.TenantId == tenantId).ToListAsync();
     }
