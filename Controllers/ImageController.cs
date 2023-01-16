@@ -16,7 +16,11 @@ namespace Locus.Controllers
 
         [HttpGet("Images")]
         [Authorize]
-        public async Task<IEnumerable<Image>> GetImages() => await _context.Images.ToListAsync();
+        public async Task<IEnumerable<Image>> GetImages()
+        {
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+            return await _context.Images.Where(u => u.TenantId == userJWTTenantId).ToListAsync();
+        }
 
         [HttpGet("Images/{id}")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status200OK)]
@@ -42,17 +46,22 @@ namespace Locus.Controllers
         /// <summary>
         /// Creates a new Image
         /// </summary>
-        /// <param name="Image">Object of type Image</param>
+        /// <param name="image">Object of type Image</param>
         /// <returns>The Image created</returns>
         [HttpPost("Images")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status201Created)]
         [Authorize]
-        public async Task<IActionResult> Create(Image Image)
+        public async Task<IActionResult> Create(Image image)
         {
-            await _context.Images.AddAsync(Image);
-            await _context.SaveChangesAsync();
+            if (image.TenantId is null)
+            {
+                int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+                image.TenantId = userJWTTenantId;
+            }
+            await _context.Images.AddAsync(image);
+            await _context.SaveChangesAsync();  
 
-            return CreatedAtAction(nameof(GetImageById), new { id = Image.Id }, Image);
+            return CreatedAtAction(nameof(GetImageById), new { id = image.Id }, image);
         }
 
         /// <summary>

@@ -16,7 +16,11 @@ namespace Locus.Controllers
 
         [HttpGet("Rooms")]
         [Authorize]
-        public async Task<IEnumerable<Room>> GetRooms() => await _context.Rooms.ToListAsync();
+        public async Task<IEnumerable<Room>> GetRooms()
+        {
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+            return await _context.Rooms.Where(u => u.TenantId == userJWTTenantId).ToListAsync();
+        }
 
         [HttpGet("Rooms/{id}")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
@@ -49,6 +53,11 @@ namespace Locus.Controllers
         [Authorize("admin:True")]
         public async Task<IActionResult> Create(Room room)
         {
+            if (room.TenantId is null)
+            {
+                int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+                room.TenantId = userJWTTenantId;
+            }
             await _context.Rooms.AddAsync(room);
             await _context.SaveChangesAsync();
 

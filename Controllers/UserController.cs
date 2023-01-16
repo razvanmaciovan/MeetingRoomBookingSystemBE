@@ -23,7 +23,11 @@ namespace Locus.Controllers
 
         [HttpGet("Users")]
         [Authorize("admin:True")]
-        public async Task<IEnumerable<User>> GetUsers() => await _context.Users.ToListAsync();
+        public async Task<IEnumerable<User>> GetUsers()
+        {
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+            return await _context.Users.Where(u => u.TenantId == userJWTTenantId).ToListAsync();
+        } 
 
         [HttpGet("Users/{id}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
@@ -56,6 +60,11 @@ namespace Locus.Controllers
         public async Task<IActionResult> Create(User user)
         {
             user.Password = PasswordController.Hash(user.Password);
+            if (user.TenantId is null)
+            {
+                int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+                user.TenantId = userJWTTenantId;
+            }
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
