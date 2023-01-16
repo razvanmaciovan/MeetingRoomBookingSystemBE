@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Text;
 
@@ -31,7 +32,18 @@ namespace Locus.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            return user == null ? NotFound() : Ok(user);
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+
+            if (user == null || userJWTTenantId == 0)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != userJWTTenantId)
+            {
+                return Unauthorized();
+            }
+
+            return Ok(user);
         }
         /// <summary>
         /// Creates a new user
@@ -63,7 +75,17 @@ namespace Locus.Controllers
         {
             var user = await _context.Users.FindAsync(userId);
             var tenant = await _context.Tenants.FindAsync(tenantId);
-            if(user == null || tenant == null) return NotFound();
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
+
+            if (user == null || tenant == null || userJWTTenantId == 0)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != userJWTTenantId || userJWTTenantId != tenantId)
+            {
+                return Unauthorized();
+            }
+
             user.TenantId = tenantId;
             await _context.SaveChangesAsync();
 

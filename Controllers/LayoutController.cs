@@ -27,6 +27,7 @@ namespace Locus.Controllers
             var layout = await _context.Layouts.FindAsync(id);
             int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
             var user = await _context.Users.FindAsync(userId);
+
             if(user == null || layout == null)
             {
                 return NotFound();
@@ -66,7 +67,18 @@ namespace Locus.Controllers
         {
             var layout = await _context.Layouts.FindAsync(layoutId);
             var tenant = await _context.Tenants.FindAsync(tenantId);
-            if (layout == null || tenant == null) return NotFound();
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null || layout == null || tenant == null)
+            {
+                return NotFound();
+            }
+            if (user.TenantId != layout.TenantId || user.TenantId != tenant.Id)
+            {
+                return Unauthorized();
+            }
+
             layout.TenantId = tenantId;
             await _context.SaveChangesAsync();
 
