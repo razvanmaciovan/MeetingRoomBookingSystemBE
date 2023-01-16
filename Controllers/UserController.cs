@@ -24,7 +24,7 @@ namespace Locus.Controllers
         [Authorize("admin:True")]
         public async Task<IEnumerable<User>> GetUsers() => await _context.Users.ToListAsync();
 
-        [HttpGet("Users/id")]
+        [HttpGet("Users/{id}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]
@@ -95,7 +95,8 @@ namespace Locus.Controllers
                 {
                     new Claim("UserId", user.Id.ToString()),
                     new Claim("Email", user.Email),
-                    new Claim("admin", user.IsAdmin.ToString())
+                    new Claim("admin", user.IsAdmin.ToString()),
+                    new Claim("TenantId", user.TenantId.ToString())
                 },
                 expires: DateTime.Now.AddMinutes(60),
                 signingCredentials: sigingCredentials);

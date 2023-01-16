@@ -18,7 +18,7 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IEnumerable<Reservation>> GetReservations() => await _context.Reservations.ToListAsync();
 
-        [HttpGet("Reservations/id")]
+        [HttpGet("Reservations/{id}")]
         [ProducesResponseType(typeof(Reservation), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]

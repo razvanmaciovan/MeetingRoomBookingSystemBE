@@ -18,7 +18,7 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IEnumerable<Tenant>> GetTenants() => await _context.Tenants.ToListAsync();
 
-        [HttpGet("Tenants/id")]
+        [HttpGet("Tenants/{id}")]
         [ProducesResponseType(typeof(Tenant), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]

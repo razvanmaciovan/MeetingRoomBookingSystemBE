@@ -18,7 +18,7 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IEnumerable<Layout>> GetLayouts() => await _context.Layouts.ToListAsync();
 
-        [HttpGet("Layouts/id")]
+        [HttpGet("Layouts/{id}")]
         [ProducesResponseType(typeof(Layout), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]

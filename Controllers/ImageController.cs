@@ -18,7 +18,7 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IEnumerable<Image>> GetImages() => await _context.Images.ToListAsync();
 
-        [HttpGet("Images/id")]
+        [HttpGet("Images/{id}")]
         [ProducesResponseType(typeof(Image), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]

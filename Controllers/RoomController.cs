@@ -18,7 +18,7 @@ namespace Locus.Controllers
         [Authorize]
         public async Task<IEnumerable<Room>> GetRooms() => await _context.Rooms.ToListAsync();
 
-        [HttpGet("Rooms/id")]
+        [HttpGet("Rooms/{id}")]
         [ProducesResponseType(typeof(Room), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]
