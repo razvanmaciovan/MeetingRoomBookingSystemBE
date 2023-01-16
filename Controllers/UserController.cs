@@ -33,18 +33,17 @@ namespace Locus.Controllers
         {
             var user = await _context.Users.FindAsync(id);
             int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
-            var userToCheck = await _context.Users.FindAsync(userId);
 
-            if (user == null || userToCheck == null)
+            if (user == null || userId == 0)
             {
                 return NotFound();
             }
-            if (user.TenantId != userToCheck.TenantId)
+            if (user.Id != userId)
             {
                 return Unauthorized();
             }
 
-            return user == null ? NotFound() : Ok(userToCheck);
+            return user == null ? NotFound() : Ok(user);
         }
         /// <summary>
         /// Creates a new user
@@ -72,26 +71,25 @@ namespace Locus.Controllers
         [HttpPut("Users/{userId}/Assign/{tenantId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
         [Authorize("admin:True")]
-        public async Task<IActionResult> AddUserToTenant(int userId, int tenantId)
+        public async Task<IActionResult> AddUserToTenant(int userId_par, int tenantId)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(userId_par);
             var tenant = await _context.Tenants.FindAsync(tenantId);
-            int userToCheckId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
-            var userToCheck = await _context.Users.FindAsync(userId);
+            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
 
-            if (user == null || userToCheck == null || tenant == null)
+            if (user == null || userId == 0 || tenant == null)
             {
                 return NotFound();
             }
-            if (user.TenantId != userToCheck.TenantId || user.TenantId != tenant.Id)
+            if (user.Id != userId || user.TenantId != tenant.Id)
             {
                 return Unauthorized();
             }
 
-            userToCheck.TenantId = tenantId;
+            user.TenantId = tenantId;
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserById), new { id = userToCheck.Id }, user);
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
         [HttpPost("login")]
