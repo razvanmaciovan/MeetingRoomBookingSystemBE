@@ -32,18 +32,18 @@ namespace Locus.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
 
-            if (user == null || userId == 0)
+            if (user == null || userJWTTenantId == 0)
             {
                 return NotFound();
             }
-            if (user.Id != userId)
+            if (user.TenantId != userJWTTenantId)
             {
                 return Unauthorized();
             }
 
-            return user == null ? NotFound() : Ok(user);
+            return Ok(user);
         }
         /// <summary>
         /// Creates a new user
@@ -71,17 +71,17 @@ namespace Locus.Controllers
         [HttpPut("Users/{userId}/Assign/{tenantId}")]
         [ProducesResponseType(typeof(User), StatusCodes.Status201Created)]
         [Authorize("admin:True")]
-        public async Task<IActionResult> AddUserToTenant(int userId_par, int tenantId)
+        public async Task<IActionResult> AddUserToTenant(int userId, int tenantId)
         {
-            var user = await _context.Users.FindAsync(userId_par);
+            var user = await _context.Users.FindAsync(userId);
             var tenant = await _context.Tenants.FindAsync(tenantId);
-            int userId = Convert.ToInt32(HttpContext.User.FindFirst("UserId")?.Value);
+            int userJWTTenantId = Convert.ToInt32(HttpContext.User.FindFirst("TenantId")?.Value);
 
-            if (user == null || userId == 0 || tenant == null)
+            if (user == null || tenant == null || userJWTTenantId == 0)
             {
                 return NotFound();
             }
-            if (user.Id != userId || user.TenantId != tenant.Id)
+            if (user.TenantId != userJWTTenantId || userJWTTenantId != tenantId)
             {
                 return Unauthorized();
             }
